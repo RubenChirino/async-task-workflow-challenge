@@ -1,6 +1,5 @@
-import { Task } from './Task';
+import { Task, TaskStatus } from './Task';
 import { Result } from './Result';
-import { TaskStatus } from '../workers/taskRunner';
 
 export interface TaskReportEntry {
     taskId: string;

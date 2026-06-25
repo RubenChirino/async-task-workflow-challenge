@@ -8,6 +8,12 @@ const workflowFactory = new WorkflowFactory(AppDataSource);
 
 router.post('/', async (req, res) => {
     const { clientId, geoJson } = req.body;
+
+    if (!clientId || !geoJson) {
+        res.status(400).json({ message: 'clientId and geoJson are required.' });
+        return;
+    }
+
     const workflowFile = path.join(__dirname, '../workflows/example_workflow.yml');
 
     try {

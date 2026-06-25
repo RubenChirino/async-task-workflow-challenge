@@ -1,17 +1,9 @@
 import { In, Repository } from 'typeorm';
-import { Task } from '../models/Task';
+import { Task, TaskStatus } from '../models/Task';
 import { getJobForTaskType } from '../jobs/JobFactory';
-import { WorkflowStatus } from "../workflows/WorkflowFactory";
-import { Workflow } from "../models/Workflow";
+import { Workflow, WorkflowStatus } from "../models/Workflow";
 import { Result } from "../models/Result";
 import { buildWorkflowReport } from "../models/WorkflowReport";
-
-export enum TaskStatus {
-    Queued = 'queued',
-    InProgress = 'in_progress',
-    Completed = 'completed',
-    Failed = 'failed'
-}
 
 export class TaskRunner {
     constructor(
@@ -28,11 +20,12 @@ export class TaskRunner {
         task.progress = 'starting job...';
         await this.taskRepository.save(task);
 
-        const job = getJobForTaskType(task.taskType);
         const resultRepository = this.taskRepository.manager.getRepository(Result);
 
         try {
             console.log(`Starting job ${task.taskType} for task ${task.taskId}...`);
+
+            const job = getJobForTaskType(task.taskType);
 
             let dependencyResult: Result | null = null;
             if (task.dependency) {

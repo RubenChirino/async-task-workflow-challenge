@@ -1,17 +1,9 @@
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { DataSource } from 'typeorm';
-import { Workflow } from '../models/Workflow';
-import { Task } from '../models/Task';
-import { TaskStatus } from "../workers/taskRunner";
+import { Workflow, WorkflowStatus } from '../models/Workflow';
+import { Task, TaskStatus } from '../models/Task';
 import { isValidTaskType } from '../jobs/JobFactory';
-
-export enum WorkflowStatus {
-    Initial = 'initial',
-    InProgress = 'in_progress',
-    Completed = 'completed',
-    Failed = 'failed'
-}
 
 interface WorkflowStep {
     taskType: string;
@@ -46,7 +38,7 @@ export class WorkflowFactory {
         const savedWorkflow = await workflowRepository.save(workflow);
 
         try {
-            this.validateSteps(workflowDef.steps);
+            this.validateSteps(workflowDef?.steps);
         } catch (error) {
             savedWorkflow.status = WorkflowStatus.Failed;
             savedWorkflow.finalResult = JSON.stringify({ error: (error as Error).message });
@@ -81,7 +73,7 @@ export class WorkflowFactory {
         return savedWorkflow;
     }
 
-    private validateSteps(steps: WorkflowStep[]): void {
+    private validateSteps(steps?: WorkflowStep[]): void {
         if (!steps?.length) {
             throw new Error('Workflow definition must contain at least one step.');
         }

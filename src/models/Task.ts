@@ -1,6 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Index } from 'typeorm';
 import { Workflow } from './Workflow';
-import { TaskStatus } from "../workers/taskRunner";
+
+export enum TaskStatus {
+    Queued = 'queued',
+    InProgress = 'in_progress',
+    Completed = 'completed',
+    Failed = 'failed',
+}
 
 @Entity({ name: 'tasks' })
 export class Task {
@@ -13,6 +19,7 @@ export class Task {
     @Column('text')
     geoJson!: string;
 
+    @Index()
     @Column()
     status!: TaskStatus;
 
