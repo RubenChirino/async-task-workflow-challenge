@@ -3,7 +3,8 @@ import * as yaml from 'js-yaml';
 import { DataSource } from 'typeorm';
 import { Workflow } from '../models/Workflow';
 import { Task } from '../models/Task';
-import {TaskStatus} from "../workers/taskRunner";
+import { TaskStatus } from "../workers/taskRunner";
+import { isValidTaskType } from '../jobs/JobFactory';
 
 export enum WorkflowStatus {
     Initial = 'initial',
@@ -43,6 +44,13 @@ export class WorkflowFactory {
         workflow.status = WorkflowStatus.Initial;
 
         const savedWorkflow = await workflowRepository.save(workflow);
+
+        const invalidStep = workflowDef.steps.find(step => !isValidTaskType(step.taskType));
+        if (invalidStep) {
+            savedWorkflow.status = WorkflowStatus.Failed;
+            await workflowRepository.save(savedWorkflow);
+            throw new Error(`Unknown taskType "${invalidStep.taskType}" in workflow definition.`);
+        }
 
         const tasks: Task[] = workflowDef.steps.map(step => {
             const task = new Task();

@@ -9,6 +9,10 @@ const jobMap: Record<string, () => Job> = {
     'polygonArea': () => new PolygonAreaJob(),
 };
 
+export function isValidTaskType(taskType: string): boolean {
+    return taskType in jobMap;
+}
+
 export function getJobForTaskType(taskType: string): Job {
     const jobFactory = jobMap[taskType];
     if (!jobFactory) {
