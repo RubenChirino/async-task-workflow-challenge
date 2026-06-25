@@ -49,6 +49,7 @@ export class WorkflowFactory {
             this.validateSteps(workflowDef.steps);
         } catch (error) {
             savedWorkflow.status = WorkflowStatus.Failed;
+            savedWorkflow.finalResult = JSON.stringify({ error: (error as Error).message });
             await workflowRepository.save(savedWorkflow);
             throw error;
         }
@@ -81,6 +82,10 @@ export class WorkflowFactory {
     }
 
     private validateSteps(steps: WorkflowStep[]): void {
+        if (!steps?.length) {
+            throw new Error('Workflow definition must contain at least one step.');
+        }
+
         const stepNumbers = new Set(steps.map(step => step.stepNumber));
 
         for (const step of steps) {

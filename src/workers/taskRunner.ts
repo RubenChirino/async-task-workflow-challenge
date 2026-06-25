@@ -1,9 +1,10 @@
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Task } from '../models/Task';
 import { getJobForTaskType } from '../jobs/JobFactory';
 import { WorkflowStatus } from "../workflows/WorkflowFactory";
 import { Workflow } from "../models/Workflow";
 import { Result } from "../models/Result";
+import { buildWorkflowReport } from "../models/WorkflowReport";
 
 export enum TaskStatus {
     Queued = 'queued',
@@ -92,17 +93,35 @@ export class TaskRunner {
             return;
         }
 
-        const allCompleted = workflow.tasks.every(t => t.status === TaskStatus.Completed);
+        const hasPendingTasks = workflow.tasks.some(
+            t => t.status === TaskStatus.Queued || t.status === TaskStatus.InProgress,
+        );
         const anyFailed = workflow.tasks.some(t => t.status === TaskStatus.Failed);
 
         if (anyFailed) {
             workflow.status = WorkflowStatus.Failed;
-        } else if (allCompleted) {
+        } else if (!hasPendingTasks) {
             workflow.status = WorkflowStatus.Completed;
         } else {
             workflow.status = WorkflowStatus.InProgress;
         }
 
+        if (!hasPendingTasks) {
+            workflow.finalResult = await this.buildFinalResult(workflow);
+        }
+
         await workflowRepository.save(workflow);
+    }
+
+    private async buildFinalResult(workflow: Workflow): Promise<string> {
+        const resultRepository = this.taskRepository.manager.getRepository(Result);
+        const tasks = [...workflow.tasks].sort((a, b) => a.stepNumber - b.stepNumber);
+        const taskIds = tasks.map(task => task.taskId);
+        const results = taskIds.length
+            ? await resultRepository.find({ where: { taskId: In(taskIds) } })
+            : [];
+
+        const report = buildWorkflowReport(workflow.workflowId, tasks, results);
+        return JSON.stringify(report);
     }
 }
