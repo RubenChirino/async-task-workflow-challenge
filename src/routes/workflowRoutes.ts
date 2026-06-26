@@ -6,6 +6,22 @@ import { HttpStatus } from '../utils/httpStatus';
 const router = Router();
 const workflowService = new WorkflowService();
 
+router.get('/:id/status', async (req, res) => {
+    try {
+        const workflowStatus = await workflowService.getWorkflowStatus(req.params.id);
+        res.status(HttpStatus.Ok).json(workflowStatus);
+    } catch (error) {
+        if (error instanceof WorkflowNotFoundError) {
+            res.status(HttpStatus.NotFound).json({ message: error.message });
+            return;
+        }
+
+        console.error('Error getting workflow status:', error);
+        res.status(HttpStatus.InternalServerError).json({ message: 'Failed to get workflow status' });
+    }
+});
+
+
 router.get('/:id/results', async (req, res) => {
     try {
         const results = await workflowService.getWorkflowResults(req.params.id);
