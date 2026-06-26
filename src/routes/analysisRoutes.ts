@@ -18,11 +18,15 @@ router.post('/', async (req, res) => {
     const workflowFile = path.join(__dirname, '../workflows/example_workflow.yml');
 
     try {
-        const workflow = await workflowFactory.createWorkflowFromYAML(workflowFile, clientId, JSON.stringify(geoJson));
+        const workflow = await workflowFactory.createWorkflowFromYAML(
+            workflowFile,
+            clientId,
+            JSON.stringify(geoJson),
+        );
 
         res.status(HttpStatus.Accepted).json({
             workflowId: workflow.workflowId,
-            message: 'Workflow created and tasks queued from YAML definition.'
+            message: 'Workflow created and tasks queued from YAML definition.',
         });
     } catch (error: any) {
         console.error('Error creating workflow:', error);

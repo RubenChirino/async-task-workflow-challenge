@@ -31,7 +31,9 @@ export class WorkflowService {
 
         const [totalTasks, completedTasks] = await Promise.all([
             this.taskRepository.count({ where: { workflow: { workflowId } } }),
-            this.taskRepository.count({ where: { workflow: { workflowId }, status: TaskStatus.Completed } }),
+            this.taskRepository.count({
+                where: { workflow: { workflowId }, status: TaskStatus.Completed },
+            }),
         ]);
 
         return {

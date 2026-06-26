@@ -17,10 +17,11 @@ router.get('/:id/status', async (req, res) => {
         }
 
         console.error('Error getting workflow status:', error);
-        res.status(HttpStatus.InternalServerError).json({ message: 'Failed to get workflow status' });
+        res.status(HttpStatus.InternalServerError).json({
+            message: 'Failed to get workflow status',
+        });
     }
 });
-
 
 router.get('/:id/results', async (req, res) => {
     try {
@@ -36,7 +37,9 @@ router.get('/:id/results', async (req, res) => {
             return;
         }
         console.error('Error getting workflow results:', error);
-        res.status(HttpStatus.InternalServerError).json({ message: 'Failed to get workflow results' });
+        res.status(HttpStatus.InternalServerError).json({
+            message: 'Failed to get workflow results',
+        });
     }
 });
 

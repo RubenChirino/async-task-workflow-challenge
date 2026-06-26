@@ -1,14 +1,12 @@
 import { In, Repository } from 'typeorm';
 import { Task, TaskStatus } from '../models/Task';
 import { getJobForTaskType } from '../jobs/JobFactory';
-import { Workflow, WorkflowStatus } from "../models/Workflow";
-import { Result } from "../models/Result";
-import { buildWorkflowReport } from "../models/WorkflowReport";
+import { Workflow, WorkflowStatus } from '../models/Workflow';
+import { Result } from '../models/Result';
+import { buildWorkflowReport } from '../models/WorkflowReport';
 
 export class TaskRunner {
-    constructor(
-        private taskRepository: Repository<Task>,
-    ) { }
+    constructor(private taskRepository: Repository<Task>) {}
 
     /**
      * Runs the appropriate job based on the task's type, managing the task's status.
@@ -66,7 +64,10 @@ export class TaskRunner {
         });
 
         for (const dependentTask of dependentTasks) {
-            if (dependentTask.status === TaskStatus.Queued || dependentTask.status === TaskStatus.InProgress) {
+            if (
+                dependentTask.status === TaskStatus.Queued ||
+                dependentTask.status === TaskStatus.InProgress
+            ) {
                 dependentTask.status = TaskStatus.Failed;
                 dependentTask.progress = null;
                 await this.taskRepository.save(dependentTask);
@@ -87,9 +88,9 @@ export class TaskRunner {
         }
 
         const hasPendingTasks = workflow.tasks.some(
-            t => t.status === TaskStatus.Queued || t.status === TaskStatus.InProgress,
+            (t) => t.status === TaskStatus.Queued || t.status === TaskStatus.InProgress,
         );
-        const anyFailed = workflow.tasks.some(t => t.status === TaskStatus.Failed);
+        const anyFailed = workflow.tasks.some((t) => t.status === TaskStatus.Failed);
 
         if (anyFailed) {
             workflow.status = WorkflowStatus.Failed;
@@ -109,7 +110,7 @@ export class TaskRunner {
     private async buildFinalResult(workflow: Workflow): Promise<string> {
         const resultRepository = this.taskRepository.manager.getRepository(Result);
         const tasks = [...workflow.tasks].sort((a, b) => a.stepNumber - b.stepNumber);
-        const taskIds = tasks.map(task => task.taskId);
+        const taskIds = tasks.map((task) => task.taskId);
         const results = taskIds.length
             ? await resultRepository.find({ where: { taskId: In(taskIds) } })
             : [];

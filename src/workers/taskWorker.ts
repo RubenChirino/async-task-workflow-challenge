@@ -15,7 +15,9 @@ export async function taskWorker() {
                 relations: ['workflow', 'dependency'],
                 order: { stepNumber: 'ASC' },
             });
-            const task = tasks.find((t) => !t.dependency || t.dependency.status === TaskStatus.Completed);
+            const task = tasks.find(
+                (t) => !t.dependency || t.dependency.status === TaskStatus.Completed,
+            );
 
             if (task) {
                 await taskRunner.run(task);
@@ -24,6 +26,6 @@ export async function taskWorker() {
             console.error('Worker iteration failed; will retry on next poll.', error);
         }
 
-        await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS));
+        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
     }
 }

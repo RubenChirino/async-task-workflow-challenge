@@ -20,7 +20,9 @@ export function buildWorkflowReport(
     tasks: Task[],
     results: Result[],
 ): WorkflowReport {
-    const resultByTaskId = new Map(results.map((result): [string, Result] => [result.taskId, result]));
+    const resultByTaskId = new Map(
+        results.map((result): [string, Result] => [result.taskId, result]),
+    );
 
     const taskEntries: TaskReportEntry[] = tasks.map((task) => {
         if (task.status === TaskStatus.Failed) {
@@ -45,9 +47,10 @@ export function buildWorkflowReport(
     return {
         workflowId,
         tasks: taskEntries,
-        finalReport: failedCount > 0
-            ? `Workflow completed with ${failedCount} failed task(s).`
-            : 'Aggregated data and results',
+        finalReport:
+            failedCount > 0
+                ? `Workflow completed with ${failedCount} failed task(s).`
+                : 'Aggregated data and results',
     };
 }
 

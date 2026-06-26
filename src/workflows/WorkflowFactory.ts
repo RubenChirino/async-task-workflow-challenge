@@ -17,7 +17,7 @@ interface WorkflowDefinition {
 }
 
 export class WorkflowFactory {
-    constructor(private dataSource: DataSource) { }
+    constructor(private dataSource: DataSource) {}
 
     /**
      * Creates a workflow by reading a YAML file and constructing the Workflow and Task entities.
@@ -26,7 +26,11 @@ export class WorkflowFactory {
      * @param geoJson - The geoJson data string for tasks (customize as needed).
      * @returns A promise that resolves to the created Workflow.
      */
-    async createWorkflowFromYAML(filePath: string, clientId: string, geoJson: string): Promise<Workflow> {
+    async createWorkflowFromYAML(
+        filePath: string,
+        clientId: string,
+        geoJson: string,
+    ): Promise<Workflow> {
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const workflowDef = yaml.load(fileContent) as WorkflowDefinition;
         const workflowRepository = this.dataSource.getRepository(Workflow);
@@ -46,7 +50,7 @@ export class WorkflowFactory {
             throw error;
         }
 
-        const tasks: Task[] = workflowDef.steps.map(step => {
+        const tasks: Task[] = workflowDef.steps.map((step) => {
             const task = new Task();
             task.clientId = clientId;
             task.geoJson = geoJson;
@@ -57,7 +61,9 @@ export class WorkflowFactory {
             return task;
         });
 
-        const taskByStepNumber = new Map(tasks.map((task): [number, Task] => [task.stepNumber, task]));
+        const taskByStepNumber = new Map(
+            tasks.map((task): [number, Task] => [task.stepNumber, task]),
+        );
         for (const step of workflowDef.steps) {
             if (step.dependsOn !== undefined) {
                 const currentTask = taskByStepNumber.get(step.stepNumber);
@@ -78,7 +84,7 @@ export class WorkflowFactory {
             throw new Error('Workflow definition must contain at least one step.');
         }
 
-        const stepNumbers = new Set(steps.map(step => step.stepNumber));
+        const stepNumbers = new Set(steps.map((step) => step.stepNumber));
 
         for (const step of steps) {
             if (!isValidTaskType(step.taskType)) {
@@ -87,10 +93,14 @@ export class WorkflowFactory {
 
             if (step.dependsOn !== undefined) {
                 if (!stepNumbers.has(step.dependsOn)) {
-                    throw new Error(`Step ${step.stepNumber} depends on unknown step ${step.dependsOn}.`);
+                    throw new Error(
+                        `Step ${step.stepNumber} depends on unknown step ${step.dependsOn}.`,
+                    );
                 }
                 if (step.dependsOn >= step.stepNumber) {
-                    throw new Error(`Step ${step.stepNumber} cannot depend on step ${step.dependsOn}: a dependency must have a lower stepNumber.`);
+                    throw new Error(
+                        `Step ${step.stepNumber} cannot depend on step ${step.dependsOn}: a dependency must have a lower stepNumber.`,
+                    );
                 }
             }
         }

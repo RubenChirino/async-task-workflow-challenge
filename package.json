@@ -1,7 +1,9 @@
 {
   "scripts": {
     "start": "ts-node src/index.ts",
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts"
+    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\""
   },
   "dependencies": {
     "@turf/turf": "^7.1.0",
@@ -22,6 +24,7 @@
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.1",
     "nodemon": "^3.1.7",
+    "prettier": "^3.8.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }

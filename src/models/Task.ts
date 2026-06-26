@@ -38,6 +38,6 @@ export class Task {
     @ManyToOne(() => Task, { nullable: true })
     dependency?: Task | null;
 
-    @ManyToOne(() => Workflow, workflow => workflow.tasks)
+    @ManyToOne(() => Workflow, (workflow) => workflow.tasks)
     workflow!: Workflow;
 }
