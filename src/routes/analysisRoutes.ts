@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AppDataSource } from '../data-source';
-import { WorkflowFactory } from '../workflows/WorkflowFactory'; // Create a folder for factories if you prefer
+import { WorkflowFactory } from '../workflows/WorkflowFactory';
+import { HttpStatus } from '../utils/httpStatus';
 import path from 'path';
 
 const router = Router();
@@ -10,7 +11,7 @@ router.post('/', async (req, res) => {
     const { clientId, geoJson } = req.body;
 
     if (!clientId || !geoJson) {
-        res.status(400).json({ message: 'clientId and geoJson are required.' });
+        res.status(HttpStatus.BadRequest).json({ message: 'clientId and geoJson are required.' });
         return;
     }
 
@@ -19,13 +20,13 @@ router.post('/', async (req, res) => {
     try {
         const workflow = await workflowFactory.createWorkflowFromYAML(workflowFile, clientId, JSON.stringify(geoJson));
 
-        res.status(202).json({
+        res.status(HttpStatus.Accepted).json({
             workflowId: workflow.workflowId,
             message: 'Workflow created and tasks queued from YAML definition.'
         });
     } catch (error: any) {
         console.error('Error creating workflow:', error);
-        res.status(500).json({ message: 'Failed to create workflow' });
+        res.status(HttpStatus.InternalServerError).json({ message: 'Failed to create workflow' });
     }
 });
 
