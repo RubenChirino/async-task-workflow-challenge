@@ -2,6 +2,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import { marked } from "marked";
+import { HttpStatus } from "../utils/httpStatus";
 
 const router = express.Router();
 const staticPath = path.join(__dirname, "../../public");
@@ -12,7 +13,7 @@ router.get("/", (req, res) => {
   fs.readFile(readmePath, "utf8", (err, data) => {
     if (err) {
       console.error("Error reading README.md:", err);
-      return res.status(500).send("Error loading README.md");
+      return res.status(HttpStatus.InternalServerError).send("Error loading README.md");
     }
 
     const htmlContent = marked(data);

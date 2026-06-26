@@ -37,8 +37,8 @@ export class WorkflowService {
         return {
             workflowId: workflow.workflowId,
             status: workflow.status,
-            totalTasks: totalTasks,
-            completedTasks: completedTasks
+            totalTasks,
+            completedTasks,
         };
     }
 
