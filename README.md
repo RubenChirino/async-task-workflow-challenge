@@ -171,6 +171,74 @@ src
    - `TaskRunner` runs the corresponding job (e.g., data analysis, email notification) and updates states.
    - Once tasks are done, the workflow is marked as `completed`.
 
+## API Endpoints
+
+### Create a Workflow
+
+- **URL:** `/analysis`
+- **Method:** `POST`
+- **Body:**
+  ```json
+  {
+    "clientId": "client123",
+    "geoJson": { "type": "Polygon", "coordinates": [[[/* lng, lat pairs */]]] }
+  }
+  ```
+- **Response Example:**
+  ```json
+  {
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "message": "Workflow created and tasks queued from YAML definition."
+  }
+  ```
+
+### Get Workflow Status
+
+- **URL:** `/workflow/:id/status`
+- **Method:** `GET`
+- **Response Example:**
+  ```json
+  {
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "status": "in_progress",
+    "completedTasks": 3,
+    "totalTasks": 5
+  }
+  ```
+- Returns `404` if the workflow does not exist.
+
+### Get Workflow Results
+
+- **URL:** `/workflow/:id/results`
+- **Method:** `GET`
+- **Response Example:**
+  ```json
+  {
+    "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+    "status": "completed",
+    "finalResult": {
+      "workflowId": "3433c76d-f226-4c91-afb5-7dfc7accab24",
+      "tasks": [
+        { "taskId": "...", "type": "analysis", "status": "completed", "output": "Brazil" }
+      ],
+      "finalReport": "Aggregated data and results"
+    }
+  }
+  ```
+- Returns `404` if the workflow does not exist, `400` if it is not completed yet.
+
+### Testing the New Endpoints
+
+After creating a workflow via `POST /analysis`, use the returned `workflowId` to track and retrieve it:
+
+```bash
+# Poll the workflow progress
+curl http://localhost:3000/workflow/<workflowId>/status
+
+# Once status is "completed", fetch the aggregated results
+curl http://localhost:3000/workflow/<workflowId>/results
+```
+
 ### **Coding Challenge Tasks for the Interviewee**
 
 The following tasks must be completed to enhance the backend system:
