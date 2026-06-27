@@ -1,11 +1,5 @@
 {
     "$schema": "https://codesandbox.io/schemas/tasks.json",
-    "setupTasks": [
-        {
-            "name": "Install dependencies",
-            "command": "yarn install"
-        }
-    ],
     "tasks": {
         "dev": {
             "name": "Start dev server",
