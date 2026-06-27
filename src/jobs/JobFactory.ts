@@ -13,6 +13,8 @@ const jobMap = {
 
 export type TaskType = keyof typeof jobMap;
 
+export const taskTypes = Object.keys(jobMap) as TaskType[];
+
 export function isValidTaskType(taskType: string): taskType is TaskType {
     return taskType in jobMap;
 }
